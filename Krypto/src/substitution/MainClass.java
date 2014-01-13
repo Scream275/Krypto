@@ -1,7 +1,12 @@
 package substitution;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,12 +22,14 @@ public class MainClass {
 	public static void main(String[] args) throws IOException {
 
 		// Zu analysierender Input-String
-		String input = "Text: Text (von lateinisch texere: weben/flechten) bezeichnet im "
-				+ "nichtwissenschaftlichen Sprachgebrauch eine abgegrenzte, zusammenhaengende, "
-				+ "meist schriftliche sprachliche Aeußerung, im weiteren Sinne auch nicht "
-				+ "geschriebene, aber schreibbare Sprachinformation (beispielsweise eines "
-				+ "Liedes, Films oder einer improvisierten Theaterauffuehrung).";
-		
+		String input = null;
+		try {
+			input = readInput(args[0]);
+		} catch (IndexOutOfBoundsException e) {
+			System.err.println("Filename fehlt");
+			System.exit(-1);
+		}
+
 		Map<Character, Integer> map = getMap(input.toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_unedited");
 
@@ -33,6 +40,10 @@ public class MainClass {
 		// Aufgabe 1.2.
 		map = getMap(getZippedInput(input.toUpperCase()));
 		saveMapToFile(map, "haeufigkeitsanalyse_zipped");
+
+		// Aufgabe 1.3.
+		map = getMap(getCBC(input.toUpperCase()));
+		saveMapToFile(map, "haeufigkeitsanalyse_cbc");
 
 	}
 
@@ -65,6 +76,65 @@ public class MainClass {
 		gzip.write(input.getBytes("UTF-8"));
 		gzip.close();
 		return Base64.encode(out.toByteArray());
+	}
+
+	public static String getCBC(String input) {
+		int toAdd = 0;
+		if (input.length() % 5 != 0)
+			toAdd = 5 - input.length() % 5;
+
+		for (int i = 0; i < toAdd; i++) {
+			input += " ";
+		}
+
+		char[] ca = input.toCharArray();
+
+		char[] iv = { (char) 0x15a8, (char) 0x8aae, (char) 0xac43,
+				(char) 0x308f, (char) 0xae59 };
+
+		String ret = "";
+
+		Substitution subs = new Substitution();
+
+		for (int i = 0; i < ca.length / 5; i++) {
+			char[] temp = new char[5];
+			for (int j = 0; j < 5; j++) {
+				temp[j] = (char) (ca[5 * i + j] ^ iv[j]);
+			}
+			iv = subs.substitude(temp);
+			for (int j = 0; j < 5; j++) {
+				ret += iv[j];
+			}
+		}
+
+		return Base64.encode(ret.getBytes());
+	}
+
+	public static String readInput(String fileName) {
+		File toOpen = new File(fileName);
+
+		BufferedReader br;
+
+		String input = "";
+
+		try {
+			br = new BufferedReader(new FileReader(toOpen));
+
+			String temp;
+
+			while ((temp = br.readLine()) != null) {
+				input += temp;
+			}
+
+			br.close();
+		} catch (FileNotFoundException e) {
+			System.err.println("File not found...");
+			System.exit(-1);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return input;
 	}
 
 	// Schreibt den Inhalt der map in die Datei mit dem Namen fileName
