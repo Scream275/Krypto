@@ -6,7 +6,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.spi.CharsetProvider;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,20 +31,22 @@ public class MainClass {
 			System.exit(-1);
 		}
 
-		Map<Character, Integer> map = getMap(input.toUpperCase());
+		String base64Encoded = Base64.encode(input.toUpperCase().getBytes());
+
+		Map<Character, Integer> map = getMap(new String(base64Encoded).toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_unedited");
 
 		// Aufgabe 1.1.
-		map = getMap(getEditedInput(input.toUpperCase()));
+		map = getMap(new String(getEditedInput(base64Encoded)));
 		saveMapToFile(map, "haeufigkeitsanalyse_edited");
 
 		// Aufgabe 1.2.
-		map = getMap(getZippedInput(input.toUpperCase()));
+		map = getMap(getZippedInput(base64Encoded).toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_zipped");
-
-		// Aufgabe 1.3.
-		map = getMap(getCBC(input.toUpperCase()));
-		saveMapToFile(map, "haeufigkeitsanalyse_cbc");
+		
+		 // Aufgabe 1.3.
+		 map = getMap(getCBC(base64Encoded).toUpperCase());
+		 saveMapToFile(map, "haeufigkeitsanalyse_cbc");
 
 	}
 
@@ -52,7 +55,7 @@ public class MainClass {
 	public static String getEditedInput(String input) {
 		String output = "";
 		int count = 1;
-		for (Character c : input.toCharArray()) {
+		for (Character c : input.toUpperCase().toCharArray()) {
 			if (c == 'E') {
 				if (count % 3 == 1) {
 					output = output.concat("Y");
@@ -73,7 +76,7 @@ public class MainClass {
 	public static String getZippedInput(String input) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		GZIPOutputStream gzip = new GZIPOutputStream(out);
-		gzip.write(input.getBytes("UTF-8"));
+		gzip.write(input.getBytes());
 		gzip.close();
 		return Base64.encode(out.toByteArray());
 	}
