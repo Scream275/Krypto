@@ -37,15 +37,15 @@ public class MainClass {
 		saveMapToFile(map, "haeufigkeitsanalyse_unedited");
 
 		// Aufgabe 1.1.
-		map = getMap(new String(getEditedInput(base64Encoded)));
+		map = getMap(getEditedInput(base64Encoded.toUpperCase()));
 		saveMapToFile(map, "haeufigkeitsanalyse_edited");
 
 		// Aufgabe 1.2.
-		map = getMap(getZippedInput(base64Encoded).toUpperCase());
+		map = getMap(getZippedInput(base64Encoded.toUpperCase()).toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_zipped");
 		
 		 // Aufgabe 1.3.
-		 map = getMap(getCBC(base64Encoded).toUpperCase());
+		 map = getMap(getCBC(base64Encoded.toUpperCase()).toUpperCase());
 		 saveMapToFile(map, "haeufigkeitsanalyse_cbc");
 
 	}
@@ -55,7 +55,7 @@ public class MainClass {
 	public static String getEditedInput(String input) {
 		String output = "";
 		int count = 1;
-		for (Character c : input.toUpperCase().toCharArray()) {
+		for (Character c : input.toCharArray()) {
 			if (c == 'E') {
 				if (count % 3 == 1) {
 					output = output.concat("Y");
