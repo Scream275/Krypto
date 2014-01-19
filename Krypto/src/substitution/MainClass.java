@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +15,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
+
+import org.apache.commons.codec.binary.Hex;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
@@ -42,9 +45,16 @@ public class MainClass {
 		saveMapToFile(map, "haeufigkeitsanalyse_zipped");
 
 		// Aufgabe 1.3.
-		map = getMap(getCBC(input.toUpperCase()));
+		map = getMap(getCBC(input));
 		saveMapToFile(map, "haeufigkeitsanalyse_cbc");
 
+	}
+
+	public static void test(String input) {
+		System.out.println("Eingabe Text:\n" + "" + input);
+		byte[] ascii = input.getBytes(StandardCharsets.US_ASCII);
+		String hex = Hex.encodeHexString(ascii);
+		System.out.println("\nASCII-Bytes als Hex:\n" + hex);
 	}
 
 	// Liefert anhand eines input-Strings einen String zurück, der alle
@@ -79,35 +89,41 @@ public class MainClass {
 	}
 
 	public static String getCBC(String input) {
+		int BLOCKSIZE = 5;
+
 		int toAdd = 0;
-		if (input.length() % 5 != 0)
-			toAdd = 5 - input.length() % 5;
+		if (input.length() % BLOCKSIZE != 0)
+			toAdd = BLOCKSIZE - input.length() % BLOCKSIZE;
 
 		for (int i = 0; i < toAdd; i++) {
 			input += " ";
 		}
 
-		char[] ca = input.toCharArray();
+		byte[] ca = input.getBytes(StandardCharsets.US_ASCII);
+		byte[] ret = new byte[ca.length];
 
-		char[] iv = { (char) 0x15a8, (char) 0x8aae, (char) 0xac43,
-				(char) 0x308f, (char) 0xae59 };
+		byte[] iv = new byte[BLOCKSIZE];
 
-		String ret = "";
+		for (int i = 0; i < iv.length; i++) {
+			iv[i] = (byte) Math.round(Math.random() * 255 - 128);
+		}
 
 		Substitution subs = new Substitution();
 
 		for (int i = 0; i < ca.length / 5; i++) {
-			char[] temp = new char[5];
+			byte[] temp = new byte[5];
 			for (int j = 0; j < 5; j++) {
-				temp[j] = (char) (ca[5 * i + j] ^ iv[j]);
+				temp[j] = (byte) (ca[5 * i + j] ^ iv[j]);
 			}
+
 			iv = subs.substitude(temp);
+
 			for (int j = 0; j < 5; j++) {
-				ret += iv[j];
+				ret[5 * i + j] = iv[j];
 			}
 		}
 
-		return Base64.encode(ret.getBytes());
+		return org.apache.commons.codec.binary.Base64.encodeBase64String(ret);
 	}
 
 	public static String readInput(String fileName) {
