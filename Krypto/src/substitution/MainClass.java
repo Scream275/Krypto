@@ -33,17 +33,19 @@ public class MainClass {
 			System.exit(-1);
 		}
 
-		Map<Character, Integer> map = getMap(input.toUpperCase());
+		String base64Encoded = Base64.encode(input.toUpperCase().getBytes());
+
+		Map<Character, Integer> map = getMap(new String(base64Encoded).toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_unedited");
 
 		// Aufgabe 1.1.
-		map = getMap(getEditedInput(input.toUpperCase()));
+		map = getMap(getEditedInput(base64Encoded.toUpperCase()));
 		saveMapToFile(map, "haeufigkeitsanalyse_edited");
 
 		// Aufgabe 1.2.
-		map = getMap(getZippedInput(input.toUpperCase()));
+		map = getMap(getZippedInput(base64Encoded.toUpperCase()).toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_zipped");
-
+		
 		// Aufgabe 1.3.
 		map = getMap(getCBC(input));
 		saveMapToFile(map, "haeufigkeitsanalyse_cbc");
@@ -83,7 +85,7 @@ public class MainClass {
 	public static String getZippedInput(String input) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		GZIPOutputStream gzip = new GZIPOutputStream(out);
-		gzip.write(input.getBytes("UTF-8"));
+		gzip.write(input.getBytes());
 		gzip.close();
 		return Base64.encode(out.toByteArray());
 	}
