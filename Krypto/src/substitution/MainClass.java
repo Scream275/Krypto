@@ -30,18 +30,15 @@ public class MainClass {
 			System.exit(-1);
 		}
 
-		String base64Encoded = Base64.encode(input.toUpperCase().getBytes());
-
-		Map<Character, Integer> map = getMap(new String(base64Encoded)
-				.toUpperCase());
+		Map<Character, Integer> map = getMap(input.toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_unedited");
 
 		// Aufgabe 1.1.
-		map = getMap(getEditedInput(base64Encoded.toUpperCase()));
+		map = getMap(getEditedInput(input.toUpperCase()));
 		saveMapToFile(map, "haeufigkeitsanalyse_edited");
 
 		// Aufgabe 1.2.
-		map = getMap(getZippedInput(base64Encoded.toUpperCase()).toUpperCase());
+		map = getMap(getZippedInput(input.toUpperCase()).toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_zipped");
 
 		// Aufgabe 1.3.
