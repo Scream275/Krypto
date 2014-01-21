@@ -16,8 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.codec.binary.Hex;
-
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class MainClass {
@@ -35,7 +33,8 @@ public class MainClass {
 
 		String base64Encoded = Base64.encode(input.toUpperCase().getBytes());
 
-		Map<Character, Integer> map = getMap(new String(base64Encoded).toUpperCase());
+		Map<Character, Integer> map = getMap(new String(base64Encoded)
+				.toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_unedited");
 
 		// Aufgabe 1.1.
@@ -45,18 +44,11 @@ public class MainClass {
 		// Aufgabe 1.2.
 		map = getMap(getZippedInput(base64Encoded.toUpperCase()).toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_zipped");
-		
+
 		// Aufgabe 1.3.
 		map = getMap(getCBC(input));
 		saveMapToFile(map, "haeufigkeitsanalyse_cbc");
 
-	}
-
-	public static void test(String input) {
-		System.out.println("Eingabe Text:\n" + "" + input);
-		byte[] ascii = input.getBytes(StandardCharsets.US_ASCII);
-		String hex = Hex.encodeHexString(ascii);
-		System.out.println("\nASCII-Bytes als Hex:\n" + hex);
 	}
 
 	// Liefert anhand eines input-Strings einen String zurück, der alle
@@ -125,7 +117,7 @@ public class MainClass {
 			}
 		}
 
-		return org.apache.commons.codec.binary.Base64.encodeBase64String(ret);
+		return Base64.encode(ret);
 	}
 
 	public static String readInput(String fileName) {
