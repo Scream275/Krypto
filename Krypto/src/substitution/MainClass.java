@@ -42,7 +42,7 @@ public class MainClass {
 		saveMapToFile(map, "haeufigkeitsanalyse_zipped");
 
 		// Aufgabe 1.3.
-		map = getMap(getCBC(input));
+		map = getMap(getCBC(input).toUpperCase());
 		saveMapToFile(map, "haeufigkeitsanalyse_cbc");
 
 	}
